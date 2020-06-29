@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+
+# auto gen files
+main.cpp
+
+# cmake build directory
+build
+
+# vscode and vs directory
+.vs
+.vscode

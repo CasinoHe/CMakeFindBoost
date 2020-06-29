@@ -10,7 +10,10 @@ project(BOOST_LIBRARY)
 set(BOOST_MAJOR_VERSION 1 CACHE INTERNAL "Boost major version number, default is 1")
 set(BOOST_MINOR_VERSION 73 CACHE INTERNAL "Boost minor version number, default is 73")
 set(BOOST_PATCH_VERSION 0 CACHE INTERNAL "Boost patch version number, default is 0")
-option(DOWNLOAD_BOOST "Download boost and compile boost" OFF)
+
+option(DOWNLOAD_BOOST "Download and compile boost" OFF)
+option(TEST_FLAG "Test this cmake file" OFF)
+
 # set(BOOST_COMPONENTS "system filesystem" CACHE STRING "Required boost components, default is \"system filesystem\"")
 # boost temporary directories
 set(BOOST_INSTALL_DIR ${CMAKE_BINARY_DIR}/boost_binary CACHE PATH "Boost install directory")
@@ -58,6 +61,12 @@ macro (DOWNLOAD_AND_COMPILE_BOOST)
   message(STATUS "We will download boost to ${BOOST_DOWNLOAD_DIR} and compile in this directory")
   message(STATUS "We will install boost to ${BOOST_INSTALL_DIR}")
 
+  # if boost has already compiled
+  find_package(Boost ${BOOST_MAJOR_VERSION}.${BOOST_MINOR_VERSION}.${BOOST_PATCH_VERSION} PATHS ${BOOST_INSTALL_DIR}/lib/cmake/Boost-${BOOST_MAJOR_VERSION}.${BOOST_MINOR_VERSION}.${BOOST_PATCH_VERSION} PATHS ${BOOST_INSTALL_DIR})
+  if (Boost_FOUND)
+    return ()
+  endif()
+
   if (WIN32)
       set(BOOST_CONFIGURE_COMMAND "bootstrap.bat")
   else ()
@@ -87,3 +96,25 @@ endif()
 if (NOT Boost_FOUND)
   DOWNLOAD_AND_COMPILE_BOOST()
 endif()
+
+
+# ------------------------------------ TEST START ---------------------------------
+if (${TEST_FLAG})
+
+  message(STATUS "Start configure TEST CODE!")
+
+  # write a test cpp file
+  set(CPP_CODE "#include <iostream>
+
+int main()
+{
+  std::cout << \"Hello, world!\" << std::endl\;
+  return 0\;
+}
+")
+
+  FILE(WRITE main.cpp ${CPP_CODE})
+
+  add_executable(${PROJECT_NAME} main.cpp)
+endif()
+# ------------------------------------ TEST END ---------------------------------
