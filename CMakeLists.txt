@@ -58,14 +58,15 @@ macro (DOWNLOAD_AND_COMPILE_BOOST)
     return ()
   endif()
 
-  message(STATUS "We will download boost to ${BOOST_DOWNLOAD_DIR} and compile in this directory")
-  message(STATUS "We will install boost to ${BOOST_INSTALL_DIR}")
-
-  # if boost has already compiled
-  find_package(Boost ${BOOST_MAJOR_VERSION}.${BOOST_MINOR_VERSION}.${BOOST_PATCH_VERSION} PATHS ${BOOST_INSTALL_DIR}/lib/cmake/Boost-${BOOST_MAJOR_VERSION}.${BOOST_MINOR_VERSION}.${BOOST_PATCH_VERSION} PATHS ${BOOST_INSTALL_DIR})
+  # if boost has already built
+  find_package(Boost ${BOOST_MAJOR_VERSION}.${BOOST_MINOR_VERSION}.${BOOST_PATCH_VERSION} PATHS ${BOOST_INSTALL_DIR}/lib/cmake/Boost-${BOOST_MAJOR_VERSION}.${BOOST_MINOR_VERSION}.${BOOST_PATCH_VERSION} NO_DEFAULT_PATH)
   if (Boost_FOUND)
+    message(STATUS "Boost has been built. Use the built version at ${BOOST_INSTALL_DIR}/lib/cmake/Boost-${BOOST_MAJOR_VERSION}.${BOOST_MINOR_VERSION}.${BOOST_PATCH_VERSION}")
     return ()
   endif()
+
+  message(STATUS "We will download boost to ${BOOST_DOWNLOAD_DIR} and compile in this directory")
+  message(STATUS "We will install boost to ${BOOST_INSTALL_DIR}")
 
   if (WIN32)
       set(BOOST_CONFIGURE_COMMAND "bootstrap.bat")
@@ -80,9 +81,9 @@ macro (DOWNLOAD_AND_COMPILE_BOOST)
       DOWNLOAD_DIR ${BOOST_DOWNLOAD_DIR}
       UPDATE_COMMAND ""
       CONFIGURE_COMMAND ${BOOST_CONFIGURE_COMMAND}
-      BUILD_COMMAND b2 --build-type=complete -d+2 stage
+      BUILD_COMMAND b2 --prefix=${BOOST_INSTALL_DIR} --build-type=complete -d+2 install
       BUILD_IN_SOURCE true
-      INSTALL_COMMAND b2 --prefix=${BOOST_INSTALL_DIR}
+      INSTALL_COMMAND ""
       INSTALL_DIR ${BOOST_INSTALL_DIR}
   )
 
